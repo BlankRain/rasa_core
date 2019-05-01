@@ -48,12 +48,15 @@ class Dispatcher(object):
 
     async def utter_response(self, message: Dict[Text, Any]) -> None:
         """Send a message to the client."""
-
+        
         bot_message = BotMessage(text=message.get("text"),
                                  data={"elements": message.get("elements"),
                                        "buttons": message.get("buttons"),
                                        "attachment": message.get("image")})
-
+        # rewrite bot_message if it has a graphql key
+        if message.get("graphql") is not None:
+            bot_message= BotMessage(text=None,data=message)
+        
         self.latest_bot_messages.append(bot_message)
         await self.output_channel.send_response(self.sender_id, message)
 
