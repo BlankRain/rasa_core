@@ -164,6 +164,11 @@ class OutputChannel(object):
                             message: Dict[Text, Any]) -> None:
         """Send a message to the client."""
 
+        # if it's graphql json response, send it and return. if not ,continue.
+        if message.get("graphql"):
+            await self._persist_message(self._message(recipient_id,graphql=message))
+            return
+        
         if message.get("elements"):
             await self.send_custom_message(recipient_id,
                                            message.get("elements"))
@@ -266,7 +271,8 @@ class CollectingOutputChannel(OutputChannel):
                  text=None,
                  image=None,
                  buttons=None,
-                 attachment=None):
+                 attachment=None,
+                 graphql=None):
         """Create a message object that will be stored."""
 
         obj = {
@@ -274,7 +280,8 @@ class CollectingOutputChannel(OutputChannel):
             "text": text,
             "image": image,
             "buttons": buttons,
-            "attachment": attachment
+            "attachment": attachment,
+            **graphql
         }
 
         # filter out any values that are `None`
