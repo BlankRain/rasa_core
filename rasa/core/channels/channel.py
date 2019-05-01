@@ -166,7 +166,7 @@ class OutputChannel(object):
 
         # if it's graphql json response, send it and return. if not ,continue.
         if message.get("graphql"):
-            await self._persist_message(self._message(recipient_id,graphql=message))
+            await self._persist_message(self._graphql_message(recipient_id,graphql=message))
             return
         
         if message.get("elements"):
@@ -271,8 +271,7 @@ class CollectingOutputChannel(OutputChannel):
                  text=None,
                  image=None,
                  buttons=None,
-                 attachment=None,
-                 graphql=None):
+                 attachment=None):
         """Create a message object that will be stored."""
 
         obj = {
@@ -281,6 +280,18 @@ class CollectingOutputChannel(OutputChannel):
             "image": image,
             "buttons": buttons,
             "attachment": attachment,
+        }
+
+        # filter out any values that are `None`
+        return utils.remove_none_values(obj)
+
+   @staticmethod
+    def _graphql_message(recipient_id,
+                 graphql=None):
+        """Create a message object that will be stored."""
+
+        obj = {
+            "recipient_id": recipient_id,
             **graphql
         }
 
